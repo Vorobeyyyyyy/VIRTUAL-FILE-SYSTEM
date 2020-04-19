@@ -58,6 +58,8 @@ public:
 
 	VirtualFS(string filename);
 
+	~VirtualFS();
+
 	vector<string> getCurrentDirNames();
 
 	vector<string> getCurrentFileNames();
@@ -103,4 +105,6 @@ public:
 	void editFile(string, string);
 
 	string readFile(string);
+
+	void updateMemory();
 };

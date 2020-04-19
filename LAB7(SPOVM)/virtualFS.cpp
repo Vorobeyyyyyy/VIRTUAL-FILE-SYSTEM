@@ -13,13 +13,19 @@ VirtualFS::VirtualFS(string filename)
 	for (unsigned long j = 0; j < BLOCK_SIZE; j++)
 	{
 		bitset<8> temp = tempMemoryBlock[j];
-		for (char k = 7; k >= 0; k--)
+		for (char k = 0; k < 8; k++)
 			memoryBlock[i++] = temp[k];
 	}
 
 	currentPath.push_back("root");
 	curDirAdr = 1;
 	curDirDesc = getDirDescriptor(curDirAdr);
+}
+
+VirtualFS::~VirtualFS()
+{
+	file.close();
+	updateMemory();
 }
 
 vector<string> VirtualFS::getCurrentDirNames()
@@ -90,7 +96,7 @@ void VirtualFS::createVirtualFs(string name)
 	ofstream file;
 	file.open(name);
 	char emptyBlock[BLOCK_SIZE] = { 0 };
-	emptyBlock[0] = 0b11110000;
+	emptyBlock[0] = 0b00001111;
 	file.write(emptyBlock, BLOCK_SIZE);
 	emptyBlock[0] = 0;
 	DirDesriptor root = { 0 };
@@ -340,6 +346,7 @@ ADRESS VirtualFS::allocateBlock()
 			memoryBlock[i] = true;
 			char emptyblock[BLOCK_SIZE] = { 0 };
 			writeBlock(i, emptyblock);
+			updateMemory();
 			return i;
 		}
 	return 0;
@@ -348,6 +355,7 @@ ADRESS VirtualFS::allocateBlock()
 void VirtualFS::freeBlock(ADRESS adr)
 {
 	memoryBlock[adr] = false;
+	updateMemory();
 }
 
 void VirtualFS::readBlock(ADRESS adr, char* dest)
@@ -451,6 +459,16 @@ string VirtualFS::readFile(string fileName)
 		result += dataBlock.data;
 	}
 	return result;
+}
+
+void VirtualFS::updateMemory()
+{
+	char block[128];
+	for (unsigned char i = 0; i < 128; i++)
+		block[i] = memoryBlock[i * 8] * 1 + memoryBlock[i * 8 + 1] * 2 + memoryBlock[i * 8 + 2] * 4 + memoryBlock[i * 8 + 3] * 8
+		+ memoryBlock[i * 8 + 4] * 16 + memoryBlock[i * 8 + 5] * 32 + memoryBlock[i * 8 + 6] * 64 + memoryBlock[i * 8 + 7] * 128;
+	writeBlock(0, block);
+
 }
 
 void VirtualFS::deleteFile(string fileName)

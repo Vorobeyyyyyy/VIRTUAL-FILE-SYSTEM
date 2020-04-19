@@ -7,12 +7,10 @@ string editString(string);
 
 int main()
 {
-	VirtualFS::createVirtualFs("virtualFs.fs");
+	//VirtualFS::createVirtualFs("virtualFs.fs");
 	VirtualFS fs("virtualFs.fs");
-	fs.createDir("New folder");
+	//fs.createDir("New folder");
 
-	//while (1)
-	//	cout << _getch() << '\n';
 
 	unsigned short currrentChoice = 0;
 	unsigned short maxChoice = 0;
@@ -22,7 +20,7 @@ int main()
 		vector<string> fileNames = fs.getCurrentFileNames();
 		maxChoice = dirNames.size() + fileNames.size() - 1;
 
-		cout << "N - create dir | F - create file | D - delete | R - rename\n";
+		cout << "N - create dir | F - create file | D - delete | R - rename | E - exit\n";
 		cout << "Total memory usage: " << fs.getUsedMemory() * BLOCK_SIZE << " (" << fs.getUsedMemory() << " blocks)\n\n";
 
 		for (auto it : fs.getCurrentPath())
@@ -90,6 +88,10 @@ int main()
 			else
 				fs.renameFile(fileNames[currrentChoice - dirNames.size()], newName);
 			break;
+		}
+		case 'e':
+		{
+			return 0;
 		}
 		case 13:
 		{
